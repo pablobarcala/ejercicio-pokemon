@@ -1,1 +1,19 @@
-<app-pokedex />
+<div class="container">
+    <header class="header">
+        <h1>Ejercicio Pokémon</h1>
+    </header>
+    <mat-tab-group>
+        <mat-tab label="Todos los Pokémon">
+            <app-pokedex />
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon [matBadge]="favoritesCount()" matBadgeColor="warn" [matBadgeHidden]="favoritesCount() === 0">
+                    favorite
+                </mat-icon>
+                <span class="tab-label">Favoritos</span>
+            </ng-template>
+            <app-favorites />
+        </mat-tab>
+    </mat-tab-group>
+</div>

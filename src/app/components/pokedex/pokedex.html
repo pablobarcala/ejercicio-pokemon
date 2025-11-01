@@ -1,173 +1,64 @@
-<div class="container">
-  <header class="header">
-    <h1>Pokédex Angular</h1>
-  </header>
+<div class="tab-content">
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <input 
+        matInput 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="searchPokemon()"
+        placeholder="Ej: pikachu, charizard..."
+      >
+      <button 
+        mat-icon-button 
+        matSuffix 
+        (click)="searchPokemon()"
+        [disabled]="loading()"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+    
+    @if (searchTerm()) {
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="clearSearch()"
+        class="clear-btn"
+      >
+        Limpiar búsqueda
+      </button>
+    }
+  </div>
 
-  <mat-tab-group>
-    <mat-tab label="Todos los Pokémon">
-      <div class="tab-content">
-        <div class="search-bar">
-          <mat-form-field appearance="outline" class="search-field">
-            <input 
-              matInput 
-              [(ngModel)]="searchTerm"
-              (keyup.enter)="searchPokemon()"
-              placeholder="Ej: pikachu, charizard..."
-            >
-            <button 
-              mat-icon-button 
-              matSuffix 
-              (click)="searchPokemon()"
-              [disabled]="loading()"
-            >
-              <mat-icon>search</mat-icon>
-            </button>
-          </mat-form-field>
-          
-          @if (searchTerm()) {
-            <button 
-              mat-raised-button 
-              color="accent" 
-              (click)="clearSearch()"
-              class="clear-btn"
-            >
-              Limpiar búsqueda
-            </button>
-          }
-        </div>
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando Pokémon...</p>
+    </div>
+  }
 
-        @if (loading()) {
-          <div class="loading-container">
-            <mat-spinner></mat-spinner>
-            <p>Cargando Pokémon...</p>
-          </div>
-        }
+  @if (!loading() && pokemons().length > 0) {
+    @if (!searchTerm()) {
+      <mat-paginator
+        [length]="totalPokemons"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+      ></mat-paginator>
+    }
+    <div class="pokemon-grid">
+      @for (pokemon of pokemons(); track pokemon.id) {
+        <app-pokemon-card [pokemon]="pokemon" />
+      }
+    </div>   
+  }
 
-        @if (!loading() && pokemons().length > 0) {
-          @if (!searchTerm()) {
-            <mat-paginator
-              [length]="totalPokemons"
-              [pageSize]="pageSize"
-              [pageIndex]="pageIndex"
-              [pageSizeOptions]="[10, 20, 50, 100]"
-              (page)="onPageChange($event)"
-              showFirstLastButtons
-            ></mat-paginator>
-          }
-          <div class="pokemon-grid">
-            @for (pokemon of pokemons(); track pokemon.id) {
-              <mat-card class="pokemon-card">
-                <mat-card-header>
-                  <mat-card-title>{{ capitalize(pokemon.name) }}</mat-card-title>
-                  <mat-card-subtitle>#{{ pokemon.id }}</mat-card-subtitle>
-                  <button 
-                    mat-icon-button 
-                    (click)="toggleFavorite(pokemon)"
-                    class="favorite-btn"
-                    [class.is-favorite]="isFavorite(pokemon.id)"
-                  >
-                    <mat-icon>{{ isFavorite(pokemon.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
-                  </button>
-                </mat-card-header>
-                  
-                <img 
-                  mat-card-image 
-                  [src]="pokemon.image" 
-                  [alt]="pokemon.name"
-                  class="pokemon-image"
-                >
-                  
-                <mat-card-content>
-                  <div class="types-container">
-                    @for (type of pokemon.types; track type) {
-                      <mat-chip 
-                        [style.background-color]="getTypeColor(type)"
-                        class="type-chip"
-                      >
-                        {{ capitalize(type) }}
-                      </mat-chip>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>   
-        }
-
-        @if (!loading() && pokemons().length === 0) {
-          <div class="no-results">
-            <mat-icon class="no-results-icon">search_off</mat-icon>
-            <h2>No se encontraron Pokémon</h2>
-            <p>Intenta con otro nombre o revisa la ortografía</p>
-          </div>
-        }
-      </div>
-    </mat-tab>
-
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon [matBadge]="favoritesCount()" matBadgeColor="warn" [matBadgeHidden]="favoritesCount() === 0">
-          favorite
-        </mat-icon>
-        <span class="tab-label">Favoritos</span>
-      </ng-template>
-
-      <div class="tab-content">
-        @if (loading()) {
-          <div class="loading-container">
-            <mat-spinner></mat-spinner>
-            <p>Cargando favoritos...</p>
-          </div>
-        }
-
-        @if (!loading() && favService.favorites().length > 0) {
-          <div class="pokemon-grid">
-            @for (pokemon of favService.favorites(); track pokemon.id) {
-              <mat-card class="pokemon-card">
-                <mat-card-header>
-                  <mat-card-title>{{ capitalize(pokemon.name) }}</mat-card-title>
-                  <mat-card-subtitle>#{{ pokemon.id }}</mat-card-subtitle>
-                  <button 
-                    mat-icon-button 
-                    (click)="toggleFavorite(pokemon)"
-                    class="favorite-btn is-favorite"
-                  >
-                    <mat-icon>favorite</mat-icon>
-                  </button>
-                </mat-card-header>
-                
-                <img 
-                  mat-card-image 
-                  [src]="pokemon.image" 
-                  [alt]="pokemon.name"
-                  class="pokemon-image"
-                >
-                
-                <mat-card-content>
-                  <div class="types-container">
-                    @for (type of pokemon.types; track type) {
-                      <mat-chip 
-                        [style.background-color]="getTypeColor(type)"
-                        class="type-chip"
-                      >
-                        {{ capitalize(type) }}
-                      </mat-chip>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
-        }
-
-        @if (!loading() && favService.favorites().length === 0) {
-          <div class="no-results">
-            <mat-icon class="no-results-icon">favorite_border</mat-icon>
-            <h2>No tienes Pokémon favoritos</h2>
-            <p>Marca algunos Pokémon como favoritos usando el ❤️</p>
-          </div>
-        }
-      </div>
-    </mat-tab>
-  </mat-tab-group>
+  @if (!loading() && pokemons().length === 0) {
+    <div class="no-results">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <h2>No se encontraron Pokémon</h2>
+      <p>Intenta con otro nombre o revisa la ortografía</p>
+    </div>
+  }
 </div>

@@ -1,0 +1,36 @@
+@if (pokemon) {
+    <mat-card class="pokemon-card">
+        <mat-card-header>
+            <mat-card-title>{{ capitalize(pokemon.name) }}</mat-card-title>
+            <mat-card-subtitle>#{{ pokemon.id }}</mat-card-subtitle>
+            <button 
+                mat-icon-button 
+                (click)="toggleFavorite(pokemon)"
+                class="favorite-btn"
+                [class.is-favorite]="isFavorite(pokemon.id)"
+            >
+                <mat-icon>{{ isFavorite(pokemon.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
+        </mat-card-header>
+                    
+        <img 
+            mat-card-image 
+            [src]="pokemon.image" 
+            [alt]="pokemon.name"
+            class="pokemon-image"
+        >
+        
+        <mat-card-content>
+            <div class="types-container">
+            @for (type of pokemon.types; track type) {
+                <mat-chip 
+                    [style.background-color]="getTypeColor(type)"
+                    class="type-chip"
+                >
+                    {{ capitalize(type) }}
+                </mat-chip>
+            }
+            </div>
+        </mat-card-content>
+    </mat-card>
+}

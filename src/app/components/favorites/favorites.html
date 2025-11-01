@@ -1,0 +1,17 @@
+<div class="tab-content">
+    @if (favService.favorites().length > 0) {
+        <div class="pokemon-grid">
+            @for (pokemon of favService.favorites(); track pokemon.id) {
+                <app-pokemon-card [pokemon]="pokemon" />
+            }
+        </div>
+    }
+
+    @if (favService.favorites().length === 0) {
+        <div class="no-results">
+            <mat-icon class="no-results-icon">favorite_border</mat-icon>
+            <h2>No tienes Pokémon favoritos</h2>
+            <p>Marca algunos Pokémon como favoritos usando el ❤️</p>
+        </div>
+    }
+</div>
